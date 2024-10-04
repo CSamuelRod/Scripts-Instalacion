@@ -1,0 +1,59 @@
+# Script de PowerShell para descargar e instalar OperaGX, Google Chrome, JDK 21, IntelliJ, NetBeans 22 y Steam.
+
+# Función para descargar e instalar un programa
+function DownloadAndInstall {
+    param (
+        [string]$url,    # URL del instalador
+        [string]$path    # Ruta donde se guardará el instalador
+    )
+
+    Write-Host "Descargando $path desde $url..."
+    Invoke-WebRequest -Uri $url -OutFile $path
+
+    Write-Host "Instalando $path..."
+    Start-Process -FilePath $path -ArgumentList "/silent", "/norestart" -Wait
+    Remove-Item $path
+    Write-Host "$path instalado con éxito."
+}
+
+# Crear una carpeta temporal para guardar los instaladores
+$TempDir = "$env:TEMP\software_installer"
+if (-Not (Test-Path $TempDir)) {
+    New-Item -ItemType Directory -Path $TempDir
+}
+
+# Descargar e instalar Opera GX
+$operaGXUrl = "https://net.geo.opera.com/opera_gx/stable/windows"
+$operaGXInstaller = "$TempDir\OperaGXSetup.exe"
+DownloadAndInstall -url $operaGXUrl -path $operaGXInstaller
+
+# Descargar e instalar Google Chrome
+$chromeUrl = "https://dl.google.com/chrome/install/latest/chrome_installer.exe"
+$chromeInstaller = "$TempDir\ChromeSetup.exe"
+DownloadAndInstall -url $chromeUrl -path $chromeInstaller
+
+# Descargar e instalar JDK 21
+$jdkUrl = "https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.exe"
+$jdkInstaller = "$TempDir\JDKSetup.exe"
+DownloadAndInstall -url $jdkUrl -path $jdkInstaller
+
+# Descargar e instalar IntelliJ IDEA (Community Edition)
+$intelliJUrl = "https://download.jetbrains.com/idea/ideaIC.exe"
+$intelliJInstaller = "$TempDir\IntelliJSetup.exe"
+DownloadAndInstall -url $intelliJUrl -path $intelliJInstaller
+
+# Descargar e instalar NetBeans 22
+$netbeansUrl = "https://dlcdn.apache.org/netbeans/netbeans-installers/22.0/Apache-NetBeans-22.0-bin-windows-x64.exe"
+$netbeansInstaller = "$TempDir\NetBeansSetup.exe"
+DownloadAndInstall -url $netbeansUrl -path $netbeansInstaller
+
+# Descargar e instalar Steam
+$steamUrl = "https://cdn.akamai.steamstatic.com/client/installer/SteamSetup.exe"
+$steamInstaller = "$TempDir\SteamSetup.exe"
+DownloadAndInstall -url $steamUrl -path $steamInstaller
+
+# Limpiar la carpeta temporal
+Remove-Item -Recurse -Force $TempDir
+
+Write-Host "Todos los programas han sido descargados e instalados correctamente."
+
