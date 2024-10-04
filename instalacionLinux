@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Actualiza el sistema
+sudo apt update && sudo apt upgrade -y
+
+# Función para instalar paquetes de Snap
+install_snap_package() {
+    local package_name=$1
+    echo "Instalando $package_name con Snap..."
+    sudo snap install "$package_name" --classic
+}
+
+# Instalación de Git
+echo "Instalando Git..."
+sudo apt install -y git
+
+# Instalación de JDK 21
+echo "Instalando JDK 21..."
+sudo apt install -y wget
+wget https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.deb
+sudo dpkg -i jdk-21_linux-x64_bin.deb
+sudo rm jdk-21_linux-x64_bin.deb
+
+# Instalación de IntelliJ IDEA (Community Edition)
+echo "Instalando IntelliJ IDEA (Community Edition)..."
+install_snap_package intellij-idea-community
+
+# Instalación de NetBeans 22
+echo "Instalando NetBeans 22..."
+wget https://dlcdn.apache.org/netbeans/netbeans-installers/22.0/Apache-NetBeans-22.0-bin-linux-x64.sh
+chmod +x Apache-NetBeans-22.0-bin-linux-x64.sh
+sudo ./Apache-NetBeans-22.0-bin-linux-x64.sh
+sudo rm Apache-NetBeans-22.0-bin-linux-x64.sh
+
+# Instalación de Postman
+echo "Instalando Postman..."
+install_snap_package postman
+
+# Instalación de Docker
+echo "Instalando Docker..."
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo usermod -aG docker $USER
+
+# Instalación de Opera GX
+echo "Instalando Opera GX..."
+wget -qO- https://deb.opera.com/archive.key | sudo apt-key add -
+sudo add-apt-repository 'deb https://deb.opera.com/opera-stable/ stable non-free'
+sudo apt update
+sudo apt install -y opera-gx
+
+echo "Instalación completada."
+
+# Mensaje para reiniciar el sistema si Docker se ha instalado
+echo "Por favor, reinicia tu sistema para aplicar los cambios de Docker correctamente."
