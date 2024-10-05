@@ -1,17 +1,28 @@
-# Script de PowerShell para descargar e instalar OperaGX, Google Chrome, JDK 21, IntelliJ, NetBeans 22 y Steam.
+# Función para verificar si un programa está instalado
+function IsProgramInstalled {
+    param (
+        [string]$programName    # Nombre del programa a buscar en Programas instalados
+    )
+    
+    $installedPrograms = Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* |
+                         Select-Object DisplayName, InstallLocation
+
+    return $installedPrograms | Where-Object { $_.DisplayName -like "*$programName*" }
+}
 
 # Función para descargar e instalar un programa
 function DownloadAndInstall {
     param (
-        [string]$url,    # URL del instalador
-        [string]$path    # Ruta donde se guardará el instalador
+        [string]$url,           # URL del instalador
+        [string]$path,          # Ruta donde se guardará el instalador
+        [string]$arguments = "/silent /norestart"  # Argumentos para la instalación silenciosa
     )
 
     Write-Host "Descargando $path desde $url..."
     Invoke-WebRequest -Uri $url -OutFile $path
 
     Write-Host "Instalando $path..."
-    Start-Process -FilePath $path -ArgumentList "/silent", "/norestart" -Wait
+    Start-Process -FilePath $path -ArgumentList $arguments -Wait
     Remove-Item $path
     Write-Host "$path instalado con éxito."
 }
@@ -22,38 +33,77 @@ if (-Not (Test-Path $TempDir)) {
     New-Item -ItemType Directory -Path $TempDir
 }
 
-# Descargar e instalar Opera GX
-$operaGXUrl = "https://net.geo.opera.com/opera_gx/stable/windows"
-$operaGXInstaller = "$TempDir\OperaGXSetup.exe"
-DownloadAndInstall -url $operaGXUrl -path $operaGXInstaller
+# Verificar si Opera GX está instalado
+if (-Not (IsProgramInstalled "Opera GX")) {
+    Write-Host "Opera GX no está instalado. Procediendo a la instalación..."
+    $operaGXUrl = "https://net.geo.opera.com/opera_gx/stable/windows"
+    $operaGXInstaller = "$TempDir\OperaGXSetup.exe"
+    DownloadAndInstall -url $operaGXUrl -path $operaGXInstaller
+} else {
+    Write-Host "Opera GX ya está instalado. Omisión de la instalación."
+}
 
-# Descargar e instalar Google Chrome
-$chromeUrl = "https://dl.google.com/chrome/install/latest/chrome_installer.exe"
-$chromeInstaller = "$TempDir\ChromeSetup.exe"
-DownloadAndInstall -url $chromeUrl -path $chromeInstaller
+# Verificar si Google Chrome está instalado
+if (-Not (IsProgramInstalled "Google Chrome")) {
+    Write-Host "Google Chrome no está instalado. Procediendo a la instalación..."
+    $chromeUrl = "https://dl.google.com/chrome/install/latest/chrome_installer.exe"
+    $chromeInstaller = "$TempDir\ChromeSetup.exe"
+    DownloadAndInstall -url $chromeUrl -path $chromeInstaller
+} else {
+    Write-Host "Google Chrome ya está instalado. Omisión de la instalación."
+}
 
-# Descargar e instalar JDK 21
-$jdkUrl = "https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.exe"
-$jdkInstaller = "$TempDir\JDKSetup.exe"
-DownloadAndInstall -url $jdkUrl -path $jdkInstaller
+# Verificar si JDK 21 está instalado
+if (-Not (IsProgramInstalled "JDK 21")) {
+    Write-Host "JDK 21 no está instalado. Procediendo a la instalación..."
+    $jdkUrl = "https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.exe"
+    $jdkInstaller = "$TempDir\JDKSetup.exe"
+    DownloadAndInstall -url $jdkUrl -path $jdkInstaller
+} else {
+    Write-Host "JDK 21 ya está instalado. Omisión de la instalación."
+}
 
-# Descargar e instalar IntelliJ IDEA (Community Edition)
-$intelliJUrl = "https://download.jetbrains.com/idea/ideaIC.exe"
-$intelliJInstaller = "$TempDir\IntelliJSetup.exe"
-DownloadAndInstall -url $intelliJUrl -path $intelliJInstaller
+# Verificar si IntelliJ IDEA (Community Edition) está instalado
+if (-Not (IsProgramInstalled "IntelliJ IDEA Community Edition")) {
+    Write-Host "IntelliJ IDEA (Community Edition) no está instalado. Procediendo a la instalación..."
+    $intelliJUrl = "https://download.jetbrains.com/idea/ideaIC.exe"
+    $intelliJInstaller = "$TempDir\IntelliJSetup.exe"
+    DownloadAndInstall -url $intelliJUrl -path $intelliJInstaller
+} else {
+    Write-Host "IntelliJ IDEA (Community Edition) ya está instalado. Omisión de la instalación."
+}
 
-# Descargar e instalar NetBeans 22
-$netbeansUrl = "https://dlcdn.apache.org/netbeans/netbeans-installers/22.0/Apache-NetBeans-22.0-bin-windows-x64.exe"
-$netbeansInstaller = "$TempDir\NetBeansSetup.exe"
-DownloadAndInstall -url $netbeansUrl -path $netbeansInstaller
+# Verificar si NetBeans 22 está instalado
+if (-Not (IsProgramInstalled "NetBeans IDE 22")) {
+    Write-Host "NetBeans 22 no está instalado. Procediendo a la instalación..."
+    $netbeansUrl = "https://dlcdn.apache.org/netbeans/netbeans-installers/22.0/Apache-NetBeans-22.0-bin-windows-x64.exe"
+    $netbeansInstaller = "$TempDir\NetBeansSetup.exe"
+    DownloadAndInstall -url $netbeansUrl -path $netbeansInstaller
+} else {
+    Write-Host "NetBeans 22 ya está instalado. Omisión de la instalación."
+}
 
-# Descargar e instalar Steam
-$steamUrl = "https://cdn.akamai.steamstatic.com/client/installer/SteamSetup.exe"
-$steamInstaller = "$TempDir\SteamSetup.exe"
-DownloadAndInstall -url $steamUrl -path $steamInstaller
+# Verificar si Steam está instalado
+if (-Not (IsProgramInstalled "Steam")) {
+    Write-Host "Steam no está instalado. Procediendo a la instalación..."
+    $steamUrl = "https://cdn.akamai.steamstatic.com/client/installer/SteamSetup.exe"
+    $steamInstaller = "$TempDir\SteamSetup.exe"
+    DownloadAndInstall -url $steamUrl -path $steamInstaller
+} else {
+    Write-Host "Steam ya está instalado. Omisión de la instalación."
+}
+
+# Verificar si Git está instalado
+if (-Not (IsProgramInstalled "Git")) {
+    Write-Host "Git no está instalado. Procediendo a la instalación..."
+    $gitUrl = "https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/Git-2.42.0-64-bit.exe"
+    $gitInstaller = "$TempDir\GitSetup.exe"
+    DownloadAndInstall -url $gitUrl -path $gitInstaller
+} else {
+    Write-Host "Git ya está instalado. Omisión de la instalación."
+}
 
 # Limpiar la carpeta temporal
 Remove-Item -Recurse -Force $TempDir
 
-Write-Host "Todos los programas han sido descargados e instalados correctamente."
-
+Write-Host "Proceso de instalación completado. Todos los programas han sido descargados e instalados correctamente (si era necesario)."
